@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30611.23
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapOverlay", "MapOverlay\MapOverlay.csproj", "{3187ABB5-C619-4809-B883-4B692789930B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InfoOverlayCustomized", "InfoOverlayCustomized\InfoOverlayCustomized.csproj", "{1652CE63-33B3-483D-BD45-492BC3E6ECC5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3187ABB5-C619-4809-B883-4B692789930B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3187ABB5-C619-4809-B883-4B692789930B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3187ABB5-C619-4809-B883-4B692789930B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3187ABB5-C619-4809-B883-4B692789930B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1652CE63-33B3-483D-BD45-492BC3E6ECC5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1652CE63-33B3-483D-BD45-492BC3E6ECC5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1652CE63-33B3-483D-BD45-492BC3E6ECC5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1652CE63-33B3-483D-BD45-492BC3E6ECC5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3D6213F8-52F0-49A6-B48B-D2C16931EA22}
+	EndGlobalSection
+EndGlobal

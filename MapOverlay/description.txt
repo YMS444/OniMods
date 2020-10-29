@@ -1,0 +1,19 @@
+A new overlay that serves as a map of the world, making the locations of Geysers/Vents/Volcanoes, AETNs and Neural Vacillators obvious by highligthing them. Also shows spots of Neutronium to help detecting buried Geysers, and an optional mode even identifies the buried Geysers. Separately from the Geysers and other objects, the different Biomes can also be colored to easily distinguish them.
+
+The following objects are highlighted in the map overview:
+
+[list]
+	[*] Neutronium
+    [*] Printing Pod
+	[*] Anti Entropy Thermo-Nullifiers
+	[*] Neural Vacillators
+	[*] All kinds of Geysers, Vents, Volcanoes and Fissures
+	[*] Oil Reservoirs, which technically are no Geysers
+	[*] All biomes
+[/list]
+
+Geysers or biomes that might be added by mods or future updates/DLCs should be highlighted on the map, just summarized under the "Unknown Geyser"/"Unknown biome" legend entry.
+
+Anything hidden by the Fog of War will not be revealed.
+
+The overlay's legend always only contains those Geysers/objects you have discovered, and the Biomes that are present on the map, so you'll get a quick overview of what you got on the map by just looking at the legend.
