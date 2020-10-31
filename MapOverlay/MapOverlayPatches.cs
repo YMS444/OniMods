@@ -133,7 +133,11 @@ namespace MapOverlay
         {
             public static void Postfix(Dictionary<HashedString, Func<SimDebugView, int, Color>> ___getColourFuncs)
             {
-                ___getColourFuncs.Add(MapOverlay.ID, (instance, cell) => MapOverlay.GetMapEntryAt(cell)?.Color ?? Color.clear);
+                ___getColourFuncs.Add(MapOverlay.ID, (instance, cell) =>
+                {
+                    MapOverlay.MapEntryMap.TryGetValue(cell, out MapOverlayEntry entry);
+                    return entry?.Color ?? Color.clear;
+                });
             }
         }
     }

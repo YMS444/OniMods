@@ -30,6 +30,7 @@ namespace MapOverlay
         // Color maps
         public static Dictionary<string, MapOverlayEntry> ObjectColorMap = new Dictionary<string, MapOverlayEntry>();
         public static Dictionary<string, MapOverlayEntry> BiomeColorMap = new Dictionary<string, MapOverlayEntry>();
+        public static Dictionary<int, MapOverlayEntry> MapEntryMap = new Dictionary<int, MapOverlayEntry>();
 
 
         // Constructor
@@ -132,9 +133,10 @@ namespace MapOverlay
             if (MapOverlay.ShowObjects && element.IsSolid && element.id.ToString().Equals("Unobtanium"))
             {
                 // Color Neutronium
-                entry = MapOverlay.ObjectColorMap["_Neutronium"];
+                return MapOverlay.ObjectColorMap["_Neutronium"];
             }
-            else if (MapOverlay.ShowObjects && obj != null && (!element.IsSolid || MapOverlay.ShowBuriedObjects))
+            
+            if (MapOverlay.ShowObjects && obj != null && (!element.IsSolid || MapOverlay.ShowBuriedObjects))
             {
                 // Color objects, but ignore buried ones by default
                 if (!MapOverlay.ObjectColorMap.TryGetValue(obj.name, out entry) && obj.GetType() == typeof(Geyser))
@@ -142,9 +144,14 @@ namespace MapOverlay
                     // Fallback for unknown geysers (e.g. from mods, updates)
                     entry = MapOverlay.ObjectColorMap["_UnknownGeyser"];
                 }
-                // Note: If ShowObjects and ShowBiomes once are allowed together, this method has to be changed, as it currently would detect an object that is not a geyser and would then not check for a biome
+
+                if (entry != null)
+                {
+                    return entry;
+                }
             }
-            else if (MapOverlay.ShowBiomes)
+            
+            if (MapOverlay.ShowBiomes)
             {
                 // Color biomes
                 if (!MapOverlay.BiomeColorMap.TryGetValue(World.Instance.zoneRenderData.worldZoneTypes[cell].ToString(), out entry))
@@ -160,6 +167,8 @@ namespace MapOverlay
         // Build legend (this is done every time the overlay is opened or the mode is changed)
         public override List<LegendEntry> GetCustomLegendData()
         {
+            MapEntryMap.Clear();
+
             // Check for discovery state before building the map, so it's possible to only display discovered/present objects/biomes
             var discoverySet = new HashSet<string>();
 
@@ -169,6 +178,7 @@ namespace MapOverlay
 
                 if (entry != null)
                 {
+                    MapEntryMap.Add(cell, entry);
                     discoverySet.Add(entry.Name);
                 }
             }
@@ -273,6 +283,7 @@ namespace MapOverlay
 }
 
 // TODO: Future improvement ideas
+// - Check if getColourFuncs() really has to use the MapOverlayEntry. Directly calling GetMapEntryAt() would have the benefit of live updates.
 // - Still show the objects in biome mode and vice versa, just with lower alpha values?
 // - Print object name in the map
 // - Make colors configurable, possibly also which objects to map

@@ -3,13 +3,13 @@ A new overlay that serves as a map of the world, making the locations of Geysers
 The following objects are highlighted in the map overview:
 
 [list]
-	[*] Neutronium
-    [*] Printing Pod
-	[*] Anti Entropy Thermo-Nullifiers
-	[*] Neural Vacillators
-	[*] All kinds of Geysers, Vents, Volcanoes and Fissures
-	[*] Oil Reservoirs, which technically are no Geysers
-	[*] All biomes
+[*] Neutronium
+[*] Printing Pod
+[*] Anti Entropy Thermo-Nullifiers
+[*] Neural Vacillators
+[*] All kinds of Geysers, Vents, Volcanoes and Fissures
+[*] Oil Reservoirs, which technically are no Geysers
+[*] All biomes
 [/list]
 
 Geysers or biomes that might be added by mods or future updates/DLCs should be highlighted on the map, just summarized under the "Unknown Geyser"/"Unknown biome" legend entry.
@@ -17,3 +17,7 @@ Geysers or biomes that might be added by mods or future updates/DLCs should be h
 Anything hidden by the Fog of War will not be revealed.
 
 The overlay's legend always only contains those Geysers/objects you have discovered, and the Biomes that are present on the map, so you'll get a quick overview of what you got on the map by just looking at the legend.
+
+The mod is best used in a zoom-out view. For this, use the game's screenshot mode (Alt + S) or Cairath's great [url=https://steamcommunity.com/sharedfiles/filedetails/?id=1717463209]Bigger Camera Zoom Out[/url] mod.
+
+Source code @ [url=https://github.com/YMS444/OniMods]GitHub[/url]
