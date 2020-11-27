@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InfoOverlayCustomized", "In
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MidnightSun", "MidnightSun\MidnightSun.csproj", "{27BD6851-ACA0-45F2-B937-F15950495985}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Luxury Carpets", "Luxury Carpets\Luxury Carpets.csproj", "{ADD92167-BD2C-4C6F-B4C2-ADFD2983EF6D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{27BD6851-ACA0-45F2-B937-F15950495985}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{27BD6851-ACA0-45F2-B937-F15950495985}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{27BD6851-ACA0-45F2-B937-F15950495985}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ADD92167-BD2C-4C6F-B4C2-ADFD2983EF6D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ADD92167-BD2C-4C6F-B4C2-ADFD2983EF6D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ADD92167-BD2C-4C6F-B4C2-ADFD2983EF6D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ADD92167-BD2C-4C6F-B4C2-ADFD2983EF6D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

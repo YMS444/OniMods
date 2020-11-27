@@ -19,9 +19,13 @@ namespace MapOverlay
                 AddSpriteFromFile(MapOverlay.Icon);
 
                 // Add translations (some of them needed as ONI would otherwise display MISSING.STRINGS)
-                Strings.Add($"STRINGS.UI.TOOLS.FILTERLAYERS.{MapOverlay.ModeObjects}", "Objects");
-                Strings.Add($"STRINGS.UI.TOOLS.FILTERLAYERS.{MapOverlay.ModeObjectsInclBuried}", "Objects (incl. buried)");
+                Strings.Add($"STRINGS.UI.TOOLS.FILTERLAYERS.{MapOverlay.ModeGeysers}", "Geysers");
+                Strings.Add($"STRINGS.UI.TOOLS.FILTERLAYERS.{MapOverlay.ModeGeysersInclBuried}", "Geysers (incl. buried)");
                 Strings.Add($"STRINGS.UI.TOOLS.FILTERLAYERS.{MapOverlay.ModeBiomes}", "Biomes");
+                Strings.Add($"STRINGS.UI.TOOLS.FILTERLAYERS.{MapOverlay.ModeCritters}", "Critters");
+                Strings.Add($"STRINGS.UI.TOOLS.FILTERLAYERS.{MapOverlay.ModeBuildings}", "Buildings");
+                Strings.Add($"STRINGS.UI.TOOLS.FILTERLAYERS.{MapOverlay.ModePlants}", "Plants");
+                Strings.Add($"STRINGS.UI.TOOLS.FILTERLAYERS.{MapOverlay.ModeDuplicants}", "Duplicants");
                 Strings.Add(MapOverlay.LocName, MapOverlay.Name);
             }
 
@@ -71,7 +75,7 @@ namespace MapOverlay
                         MapOverlay.Icon,
                         MapOverlay.ID,
                         "",
-                        Action.NumActions,
+                        Action.Overlay15, // TODO: Check this (1..14 are used, 15 exists, but is not used, can it be configured?) -> looks good as of now, but might be used by the radiation overlay in the future
                         MapOverlay.Desc,
                         MapOverlay.Name
                     }
@@ -137,6 +141,9 @@ namespace MapOverlay
                 {
                     MapOverlay.MapEntryMap.TryGetValue(cell, out MapOverlayEntry entry);
                     return entry?.Color ?? Color.clear;
+
+                    // TODO: At least for critters, it would be nice to color the actual critter, not the background cell here
+                    // -> Tint buildings instead of coloring the whole tile (see  e.g. https://github.com/EtiamNullam/Etiam-ONI-Modpack/blob/master/src/MaterialColor/Painter.cs)
                 });
             }
         }
