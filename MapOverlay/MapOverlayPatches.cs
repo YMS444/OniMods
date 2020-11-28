@@ -19,13 +19,13 @@ namespace MapOverlay
                 AddSpriteFromFile(MapOverlay.Icon);
 
                 // Add translations (some of them needed as ONI would otherwise display MISSING.STRINGS)
+                // TODO: Define these within the constant already? (Pair<"ModeGeysers", "Geysers">)
                 Strings.Add($"STRINGS.UI.TOOLS.FILTERLAYERS.{MapOverlay.ModeGeysers}", "Geysers");
                 Strings.Add($"STRINGS.UI.TOOLS.FILTERLAYERS.{MapOverlay.ModeGeysersInclBuried}", "Geysers (incl. buried)");
                 Strings.Add($"STRINGS.UI.TOOLS.FILTERLAYERS.{MapOverlay.ModeBiomes}", "Biomes");
                 Strings.Add($"STRINGS.UI.TOOLS.FILTERLAYERS.{MapOverlay.ModeCritters}", "Critters");
                 Strings.Add($"STRINGS.UI.TOOLS.FILTERLAYERS.{MapOverlay.ModeBuildings}", "Buildings");
                 Strings.Add($"STRINGS.UI.TOOLS.FILTERLAYERS.{MapOverlay.ModePlants}", "Plants");
-                Strings.Add($"STRINGS.UI.TOOLS.FILTERLAYERS.{MapOverlay.ModeDuplicants}", "Duplicants");
                 Strings.Add(MapOverlay.LocName, MapOverlay.Name);
             }
 
@@ -110,7 +110,7 @@ namespace MapOverlay
 
         // Enable the overlay legend
         [HarmonyPatch(typeof(OverlayLegend), "OnSpawn")]
-        public static class OverlayScreen_OnSpawn_Patch
+        public static class OverlayLegend_OnSpawn_Patch
         {
             public static void Prefix(OverlayLegend __instance)
             {
@@ -118,12 +118,35 @@ namespace MapOverlay
 
                 if (instance.Field("overlayInfoList").FieldExists() && instance.Field("overlayInfoList").GetValue<List<OverlayLegend.OverlayInfo>>() != null)
                 {
+                    //Debug.Log(instance.Field("powerLabelParent").GetValue<Canvas>());
+                    //Debug.Log(instance.Field("powerLabelParent").GetValue<Canvas>().gameObject);
+
+                    GameObject gameObject1 = Util.KInstantiateUI(Assets.UIPrefabs.TableScreenWidgets.Checkbox, instance.Field("diagramsParent").GetValue<GameObject>());
+                    //GameObject gameObject1 = Util.KInstantiateUI(Assets.UIPrefabs.TableScreenWidgets.Checkbox, instance.Field("powerLabelParent").GetValue<Canvas>().gameObject);
+                    gameObject1.name = "xyz";
+                    gameObject1.layer = 15;
+                    //GameObject gameObject2 = Util.KInstantiateUI(Assets.UIPrefabs.TableScreenWidgets.Label, instance.Field("diagramsParent").GetValue<GameObject>());
+                    //KToggle toggle = new KToggle();
+                    //KToggle toggle = __instance.gameObject.AddComponent(typeof(KToggle)) as KToggle;
+                    //toggle.name = "xscy";
+
+
+                    //Debug.Log(toggle == null ? "AAAA" : "BBBB");
+
+                    //Debug.Log(toggle);
+                    //Debug.Log(toggle.gameObject);
+
                     var info = new OverlayLegend.OverlayInfo
                     {
                         name = MapOverlay.LocName,
                         mode = MapOverlay.ID,
                         infoUnits = new List<OverlayLegend.OverlayInfoUnit>(),
-                        isProgrammaticallyPopulated = true
+                        isProgrammaticallyPopulated = true,
+                        //diagrams = new List<GameObject>() { Util.KInstantiateUI(Assets.UIPrefabs.TableScreenWidgets.Checkbox, instance.Field("diagramsParent").GetValue<GameObject>()) } // TODO: This adds a toggle to the overlay, but it cannot be used and is present on other overlays as well, besides being big and unlabeled
+
+
+                        //diagrams = new List<GameObject>() { gameObject1, gameObject2, toggle.gameObject }
+                        diagrams = new List<GameObject>() { gameObject1 }
                     };
 
                     instance.Field("overlayInfoList").GetValue<List<OverlayLegend.OverlayInfo>>().Add(info);
@@ -135,17 +158,22 @@ namespace MapOverlay
         [HarmonyPatch(typeof(SimDebugView), "OnPrefabInit")]
         public static class SimDebugView_OnPrefabInit_Patch
         {
+            //public static void Postfix(Dictionary<HashedString, Func<SimDebugView, int, Color>> ___getColourFuncs)
+            //{
+            //    ___getColourFuncs.Add(MapOverlay.ID, (instance, cell) =>
+            //    {
+            //        //MapOverlay.MapEntryMap.TryGetValue(cell, out MapOverlayEntry entry);
+            //        //return entry?.Color ?? Color.clear;
+            //    });
+            //}
+
             public static void Postfix(Dictionary<HashedString, Func<SimDebugView, int, Color>> ___getColourFuncs)
             {
-                ___getColourFuncs.Add(MapOverlay.ID, (instance, cell) =>
-                {
-                    MapOverlay.MapEntryMap.TryGetValue(cell, out MapOverlayEntry entry);
-                    return entry?.Color ?? Color.clear;
-
-                    // TODO: At least for critters, it would be nice to color the actual critter, not the background cell here
-                    // -> Tint buildings instead of coloring the whole tile (see  e.g. https://github.com/EtiamNullam/Etiam-ONI-Modpack/blob/master/src/MaterialColor/Painter.cs)
-                });
+                ___getColourFuncs.Add(MapOverlay.ID, (instance, cell) => MapOverlay.GetMapEntryAt(cell)?.Color ?? Color.clear);
             }
+
+            // TODO: At least for critters, it would be nice to color the actual critter, not the background cell here
+            // -> Tint buildings instead of coloring the whole tile (see  e.g. https://github.com/EtiamNullam/Etiam-ONI-Modpack/blob/master/src/MaterialColor/Painter.cs)
         }
     }
 }

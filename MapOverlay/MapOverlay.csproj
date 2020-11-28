@@ -80,6 +80,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\lib\UnityEngine.UI.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.UIModule">
+      <HintPath>..\lib\UnityEngine.UIModule.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
