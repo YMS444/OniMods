@@ -25,13 +25,14 @@ namespace MapOverlay
         public const Action Hotkey = Action.Overlay15; // TODO: Check this with final DLC, which probably will use Overlay15 for the Radiation Overlay
 
         // Mode filters
-        public const string ModeGeysers = "MapOverlayGeysers";
-        public const string ModeGeysersInclBuried = "MapOverlayGeysersInclBuried";
-        public const string ModeBiomes = "MapOverlayBiomes";
-        public const string ModeCritters = "MapOverlayCritters";
-        public const string ModePlants = "MapOverlayPlants";
-        public const string ModeBuildings = "MapOverlayBuildings";
+        private const string ModeBiomes = "MapOverlayBiomes";
+        private const string ModeBuildings = "MapOverlayBuildings";
+        private const string ModeCritters = "MapOverlayCritters";
+        private const string ModeGeysers = "MapOverlayGeysers";
+        private const string ModeGeysersInclBuried = "MapOverlayGeysersInclBuried";
+        private const string ModePlants = "MapOverlayPlants";
         private static string CurrentMode = ModeGeysers;
+        public static readonly Dictionary<string, string> Modes = new Dictionary<string, string>() { { ModeBiomes, "Biomes" }, { ModeBuildings, "Buildings" }, { ModeCritters, "Critters" }, { ModeGeysers, "Geysers" }, { ModeGeysersInclBuried, "Geysers (incl. buried)" }, { ModePlants, "Plants" } };
         // TODO: Buried mode would make sense for buildings (AETNs) and Critter (Hatches), too; it would be great to have one checkbox for all, rather than a separate radiobutton for each
         // Alternatively, it could be one mode "Show buried things" that shows (only) all buried geysers, critters, buildings
         // Or have a new reveal approach? No option, but always fully reveal partially revealed objects?
@@ -39,7 +40,7 @@ namespace MapOverlay
         // Maps of things to map on the map (note that Geysers [= Geysers, Vents, Volcanos, Fissures], Critters and Plants will be detected automatically)
         private static readonly Dictionary<string, MapOverlayEntry> ColorMap = new Dictionary<string, MapOverlayEntry>();
         private static readonly Dictionary<string, SimHashes> ExtraGeyserMap = new Dictionary<string, SimHashes>() { { "OilWell", SimHashes.CrudeOil }, { "Unobtanium", SimHashes.Unobtanium } };
-        private static readonly List<string> BuildingList = new List<string>() { "ExobaseHeadquarters", "GeneShuffler", "HeadquartersComplete", "MassiveHeatSinkComplete", "WarpConduitReceiver", "WarpConduitSender", "WarpPortal", "WarpReceiver" }; // TODO: possibly several POIs (lockers, vending machines, satellites, Gravitas stuff, ...)
+        private static readonly List<string> BuildingList = new List<string>() { "ExobaseHeadquarters", "GeneShuffler", "HeadquartersComplete", "MassiveHeatSinkComplete", "WarpConduitReceiver", "WarpConduitSender", "WarpPortal", "WarpReceiver" }; // TODO: possibly several other POIs (lockers, vending machines, satellites, Gravitas stuff, ...)
 
         // Tech stuff
         private static readonly SHA256 HashGenerator = SHA256.Create();
@@ -207,14 +208,31 @@ namespace MapOverlay
         {
             var filters = new Dictionary<string, ToolParameterMenu.ToggleState>();
 
-            filters.Add(ModeGeysers, ToolParameterMenu.ToggleState.On);
-            filters.Add(ModeGeysersInclBuried, ToolParameterMenu.ToggleState.Off);
-            filters.Add(ModeBuildings, ToolParameterMenu.ToggleState.Off);
-            filters.Add(ModeCritters, ToolParameterMenu.ToggleState.Off);
-            filters.Add(ModePlants, ToolParameterMenu.ToggleState.Off);
-            filters.Add(ModeBiomes, ToolParameterMenu.ToggleState.Off);
+            foreach (string mode in Modes.Keys)
+            {
+                filters.Add(mode, ToolParameterMenu.ToggleState.Off);
+            }
+
+            filters[CurrentMode] = ToolParameterMenu.ToggleState.On;
 
             return filters;
+        }
+
+        // Legend filter behaviour
+        public override void OnFiltersChanged()
+        {
+            foreach (KeyValuePair<string, ToolParameterMenu.ToggleState> entry in legendFilters)
+            {
+                if (entry.Value == ToolParameterMenu.ToggleState.On)
+                {
+                    CurrentMode = entry.Key;
+                }
+            }
+        }
+
+        private static bool IsVisible(string mode)
+        {
+            return CurrentMode.Equals(mode);
         }
 
         // Add the buried objects checkbox to the UI
@@ -244,23 +262,6 @@ namespace MapOverlay
             //Vector3 position = parent.transform.GetPosition() + Vector3.down;
             //Util.KInstantiateUI(legendGameObject, parent.transform.gameObject).GetComponent<RectTransform>().SetPosition(position);
             // Still no effect
-        }
-
-        // Legend filter behaviour
-        public override void OnFiltersChanged()
-        {
-            foreach (KeyValuePair<string, ToolParameterMenu.ToggleState> entry in legendFilters)
-            {
-                if (entry.Value == ToolParameterMenu.ToggleState.On)
-                {
-                    CurrentMode = entry.Key;
-                }
-            }
-        }
-
-        private static bool IsVisible(string mode)
-        {
-            return CurrentMode.Equals(mode);
         }
 
         // ID, as used internally by ONI to distinguish the overlays

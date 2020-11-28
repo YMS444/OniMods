@@ -19,13 +19,11 @@ namespace MapOverlay
                 AddSpriteFromFile(MapOverlay.Icon);
 
                 // Add translations (some of them needed as ONI would otherwise display MISSING.STRINGS)
-                // TODO: Define these within the constant already? (Pair<"ModeGeysers", "Geysers">)
-                Strings.Add($"STRINGS.UI.TOOLS.FILTERLAYERS.{MapOverlay.ModeGeysers}", "Geysers");
-                Strings.Add($"STRINGS.UI.TOOLS.FILTERLAYERS.{MapOverlay.ModeGeysersInclBuried}", "Geysers (incl. buried)");
-                Strings.Add($"STRINGS.UI.TOOLS.FILTERLAYERS.{MapOverlay.ModeBiomes}", "Biomes");
-                Strings.Add($"STRINGS.UI.TOOLS.FILTERLAYERS.{MapOverlay.ModeCritters}", "Critters");
-                Strings.Add($"STRINGS.UI.TOOLS.FILTERLAYERS.{MapOverlay.ModeBuildings}", "Buildings");
-                Strings.Add($"STRINGS.UI.TOOLS.FILTERLAYERS.{MapOverlay.ModePlants}", "Plants");
+                foreach (KeyValuePair<string, string> entry in MapOverlay.Modes)
+                {
+                    Strings.Add($"STRINGS.UI.TOOLS.FILTERLAYERS.{ entry.Key }", entry.Value);
+                }
+                
                 Strings.Add(MapOverlay.LocName, MapOverlay.Name);
             }
 
@@ -122,7 +120,7 @@ namespace MapOverlay
 
                 if (instance.Field("overlayInfoList").FieldExists() && instance.Field("overlayInfoList").GetValue<List<OverlayLegend.OverlayInfo>>() != null)
                 {
-                    GameObject gameObject1 = Util.KInstantiateUI(Assets.UIPrefabs.TableScreenWidgets.Checkbox, instance.Field("diagramsParent").GetValue<GameObject>());
+                    //GameObject gameObject1 = Util.KInstantiateUI(Assets.UIPrefabs.TableScreenWidgets.Checkbox, instance.Field("diagramsParent").GetValue<GameObject>());
 
                     var info = new OverlayLegend.OverlayInfo
                     {
