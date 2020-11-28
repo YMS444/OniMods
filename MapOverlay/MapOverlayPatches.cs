@@ -87,13 +87,9 @@ namespace MapOverlay
         [HarmonyPatch(typeof(OverlayScreen), "RegisterModes")]
         public static class OverlayScreen_RegisterModes_Patch
         {
-            public static void Postfix(OverlayScreen __instance)
+            public static void Postfix()
             {
-                var instance = Traverse.Create(__instance);
-                Canvas parent = instance.Field("powerLabelParent").GetValue<Canvas>();
-                GameObject gameObject = instance.Field("diseaseOverlayPrefab").GetValue<GameObject>(); // TODO: While the powerLabelParent is the parent used for all Overlays in the original, diseaseOverlayPrefab is an overlay-specific thing
-
-                instance.Method("RegisterMode", new MapOverlay(parent, gameObject)).GetValue();
+                Traverse.Create(OverlayScreen.Instance).Method("RegisterMode", new MapOverlay()).GetValue();
             }
         }
 
@@ -120,15 +116,12 @@ namespace MapOverlay
 
                 if (instance.Field("overlayInfoList").FieldExists() && instance.Field("overlayInfoList").GetValue<List<OverlayLegend.OverlayInfo>>() != null)
                 {
-                    //GameObject gameObject1 = Util.KInstantiateUI(Assets.UIPrefabs.TableScreenWidgets.Checkbox, instance.Field("diagramsParent").GetValue<GameObject>());
-
                     var info = new OverlayLegend.OverlayInfo
                     {
                         name = MapOverlay.LocName,
                         mode = MapOverlay.ID,
                         infoUnits = new List<OverlayLegend.OverlayInfoUnit>(),
                         isProgrammaticallyPopulated = true
-                        //diagrams = new List<GameObject>() { gameObject1 } // TODO: Having this adds a non-usable, huge, unlabeled checkbox to several overlays rather than just this one
                     };
 
                     instance.Field("overlayInfoList").GetValue<List<OverlayLegend.OverlayInfo>>().Add(info);

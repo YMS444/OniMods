@@ -5,8 +5,6 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using UnityEngine;
-using UnityEngine.UI;
-using static GeyserConfigurator;
 using static ProcGen.SubWorld;
 
 namespace MapOverlay
@@ -45,19 +43,10 @@ namespace MapOverlay
         // Tech stuff
         private static readonly SHA256 HashGenerator = SHA256.Create();
 
-        // Test stuff
-        //private GameObject cb;
-        //private Canvas parent;
-        //private GameObject legendGameObject;
-
 
         // Constructor
-        public MapOverlay(Canvas parent, GameObject legendGameObject)
+        public MapOverlay()
         {
-            //legendGameObject.transform.SetParent(parent.transform); // TODO: No effect
-            //this.parent = parent;
-            //this.legendGameObject = legendGameObject;
-
             this.legendFilters = CreateDefaultFilters();
         }
 
@@ -233,35 +222,6 @@ namespace MapOverlay
         private static bool IsVisible(string mode)
         {
             return CurrentMode.Equals(mode);
-        }
-
-        // Add the buried objects checkbox to the UI
-        public override void Update()
-        {
-            //if (cb == null)
-            //{
-            //    Canvas canvas = GameObject.Find("WorldSpaceCanvas").GetComponent<Canvas>();
-
-            //    cb = Util.KInstantiateUI(Assets.UIPrefabs.TableScreenWidgets.Checkbox, GameScreenManager.Instance.worldSpaceCanvas, true);
-
-            //    //KToggle test = UnityEngine.Object.Instantiate<KToggle>(KToggle., Vector3.zero, Quaternion.identity);
-            //    Vector3 pos = canvas.gameObject.transform.GetPosition() + Vector3.down;
-
-            //    cb.transform.SetParent(canvas.transform);
-            //    cb.transform.localScale = Vector3.one;
-            //    cb.transform.localRotation = Quaternion.Euler(Vector3.zero);
-            //    cb.GetComponent<RectTransform>().anchoredPosition3D = pos;
-
-            //    // => not crashing, but also not doing anything
-            //}
-
-            // TODO: I probably don't really want to use the Update() method for adding the checkbox
-            // I want to do it the same way as it is done in DisinfectThresholdDiagram, but where the fuck is this used?
-            // -> It must be the toolParameterMenuPrefab (with parent diagramsParent) for the OverlayLegend of the Disease Overlay, but I don't see where and with what this is set in OverlayScreen
-
-            //Vector3 position = parent.transform.GetPosition() + Vector3.down;
-            //Util.KInstantiateUI(legendGameObject, parent.transform.gameObject).GetComponent<RectTransform>().SetPosition(position);
-            // Still no effect
         }
 
         // ID, as used internally by ONI to distinguish the overlays
