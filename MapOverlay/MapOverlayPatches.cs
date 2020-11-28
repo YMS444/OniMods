@@ -75,7 +75,7 @@ namespace MapOverlay
                         MapOverlay.Icon,
                         MapOverlay.ID,
                         "",
-                        Action.Overlay15, // TODO: Check this (1..14 are used, 15 exists, but is not used, can it be configured?) -> looks good as of now, but might be used by the radiation overlay in the future
+                        MapOverlay.Hotkey,
                         MapOverlay.Desc,
                         MapOverlay.Name
                     }
@@ -89,9 +89,13 @@ namespace MapOverlay
         [HarmonyPatch(typeof(OverlayScreen), "RegisterModes")]
         public static class OverlayScreen_RegisterModes_Patch
         {
-            public static void Postfix()
+            public static void Postfix(OverlayScreen __instance)
             {
-                Traverse.Create(OverlayScreen.Instance).Method("RegisterMode", new MapOverlay()).GetValue();
+                var instance = Traverse.Create(__instance);
+                Canvas parent = instance.Field("powerLabelParent").GetValue<Canvas>();
+                GameObject gameObject = instance.Field("diseaseOverlayPrefab").GetValue<GameObject>(); // TODO: While the powerLabelParent is the parent used for all Overlays in the original, diseaseOverlayPrefab is an overlay-specific thing
+
+                instance.Method("RegisterMode", new MapOverlay(parent, gameObject)).GetValue();
             }
         }
 
@@ -118,35 +122,15 @@ namespace MapOverlay
 
                 if (instance.Field("overlayInfoList").FieldExists() && instance.Field("overlayInfoList").GetValue<List<OverlayLegend.OverlayInfo>>() != null)
                 {
-                    //Debug.Log(instance.Field("powerLabelParent").GetValue<Canvas>());
-                    //Debug.Log(instance.Field("powerLabelParent").GetValue<Canvas>().gameObject);
-
                     GameObject gameObject1 = Util.KInstantiateUI(Assets.UIPrefabs.TableScreenWidgets.Checkbox, instance.Field("diagramsParent").GetValue<GameObject>());
-                    //GameObject gameObject1 = Util.KInstantiateUI(Assets.UIPrefabs.TableScreenWidgets.Checkbox, instance.Field("powerLabelParent").GetValue<Canvas>().gameObject);
-                    gameObject1.name = "xyz";
-                    gameObject1.layer = 15;
-                    //GameObject gameObject2 = Util.KInstantiateUI(Assets.UIPrefabs.TableScreenWidgets.Label, instance.Field("diagramsParent").GetValue<GameObject>());
-                    //KToggle toggle = new KToggle();
-                    //KToggle toggle = __instance.gameObject.AddComponent(typeof(KToggle)) as KToggle;
-                    //toggle.name = "xscy";
-
-
-                    //Debug.Log(toggle == null ? "AAAA" : "BBBB");
-
-                    //Debug.Log(toggle);
-                    //Debug.Log(toggle.gameObject);
 
                     var info = new OverlayLegend.OverlayInfo
                     {
                         name = MapOverlay.LocName,
                         mode = MapOverlay.ID,
                         infoUnits = new List<OverlayLegend.OverlayInfoUnit>(),
-                        isProgrammaticallyPopulated = true,
-                        //diagrams = new List<GameObject>() { Util.KInstantiateUI(Assets.UIPrefabs.TableScreenWidgets.Checkbox, instance.Field("diagramsParent").GetValue<GameObject>()) } // TODO: This adds a toggle to the overlay, but it cannot be used and is present on other overlays as well, besides being big and unlabeled
-
-
-                        //diagrams = new List<GameObject>() { gameObject1, gameObject2, toggle.gameObject }
-                        diagrams = new List<GameObject>() { gameObject1 }
+                        isProgrammaticallyPopulated = true
+                        //diagrams = new List<GameObject>() { gameObject1 } // TODO: Having this adds a non-usable, huge, unlabeled checkbox to several overlays rather than just this one
                     };
 
                     instance.Field("overlayInfoList").GetValue<List<OverlayLegend.OverlayInfo>>().Add(info);
@@ -158,15 +142,6 @@ namespace MapOverlay
         [HarmonyPatch(typeof(SimDebugView), "OnPrefabInit")]
         public static class SimDebugView_OnPrefabInit_Patch
         {
-            //public static void Postfix(Dictionary<HashedString, Func<SimDebugView, int, Color>> ___getColourFuncs)
-            //{
-            //    ___getColourFuncs.Add(MapOverlay.ID, (instance, cell) =>
-            //    {
-            //        //MapOverlay.MapEntryMap.TryGetValue(cell, out MapOverlayEntry entry);
-            //        //return entry?.Color ?? Color.clear;
-            //    });
-            //}
-
             public static void Postfix(Dictionary<HashedString, Func<SimDebugView, int, Color>> ___getColourFuncs)
             {
                 ___getColourFuncs.Add(MapOverlay.ID, (instance, cell) => MapOverlay.GetMapEntryAt(cell)?.Color ?? Color.clear);

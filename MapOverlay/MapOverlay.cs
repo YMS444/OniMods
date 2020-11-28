@@ -22,8 +22,9 @@ namespace MapOverlay
         public const string Desc = "Displays a map view indicating positions of various POIs";
         public const string Sound = "Temperature";
         public const string LocName = "MAPOVERLAY.TITLE";
+        public const Action Hotkey = Action.Overlay15; // TODO: Check this with final DLC, which probably will use Overlay15 for the Radiation Overlay
 
-        // Filter names
+        // Mode filters
         public const string ModeGeysers = "MapOverlayGeysers";
         public const string ModeGeysersInclBuried = "MapOverlayGeysersInclBuried";
         public const string ModeBiomes = "MapOverlayBiomes";
@@ -33,18 +34,29 @@ namespace MapOverlay
         private static string CurrentMode = ModeGeysers;
         // TODO: Buried mode would make sense for buildings (AETNs) and Critter (Hatches), too; it would be great to have one checkbox for all, rather than a separate radiobutton for each
         // Alternatively, it could be one mode "Show buried things" that shows (only) all buried geysers, critters, buildings
+        // Or have a new reveal approach? No option, but always fully reveal partially revealed objects?
 
-        // Maps of things to map on the map (note that Geysers (= Geysers, Vents, Volcanos, Fissures), Critters and Plants will be detected automatically)
-        public static Dictionary<string, MapOverlayEntry> ColorMap = new Dictionary<string, MapOverlayEntry>();
+        // Maps of things to map on the map (note that Geysers [= Geysers, Vents, Volcanos, Fissures], Critters and Plants will be detected automatically)
+        private static readonly Dictionary<string, MapOverlayEntry> ColorMap = new Dictionary<string, MapOverlayEntry>();
         private static readonly Dictionary<string, SimHashes> ExtraGeyserMap = new Dictionary<string, SimHashes>() { { "OilWell", SimHashes.CrudeOil }, { "Unobtanium", SimHashes.Unobtanium } };
-        private static readonly List<string> BuildingList = new List<string>() { "GeneShuffler", "HeadquartersComplete", "MassiveHeatSinkComplete" }; // TODO: Porta-Pod, Teleporters, Warp Outputs/Inputs, possibly several POIs (lockers, vending machines, Gravitas stuff, ...)
+        private static readonly List<string> BuildingList = new List<string>() { "ExobaseHeadquarters", "GeneShuffler", "HeadquartersComplete", "MassiveHeatSinkComplete", "WarpConduitReceiver", "WarpConduitSender", "WarpPortal", "WarpReceiver" }; // TODO: possibly several POIs (lockers, vending machines, satellites, Gravitas stuff, ...)
 
-        private GameObject cb;
+        // Tech stuff
+        private static readonly SHA256 HashGenerator = SHA256.Create();
+
+        // Test stuff
+        //private GameObject cb;
+        //private Canvas parent;
+        //private GameObject legendGameObject;
 
 
         // Constructor
-        public MapOverlay()
+        public MapOverlay(Canvas parent, GameObject legendGameObject)
         {
+            //legendGameObject.transform.SetParent(parent.transform); // TODO: No effect
+            //this.parent = parent;
+            //this.legendGameObject = legendGameObject;
+
             this.legendFilters = CreateDefaultFilters();
         }
 
@@ -60,13 +72,12 @@ namespace MapOverlay
             return GetAdjustedColor(World.Instance.GetComponent<SubworldZoneRenderData>().zoneColours[(int) biome]);
         }
 
-        // Get a random but persistent color for a specific text
+        // Get a random but stable color for a specific text
+        // Using SHA256 is basically a ransom choice, but giving nicer colors for base game critters/plants than MD5 and SHA1
         private static Color GetRandomColor(string input)
         {
-            var hash = MD5.Create().ComputeHash(Encoding.UTF8.GetBytes(input));
+            var hash = HashGenerator.ComputeHash(Encoding.UTF8.GetBytes(input));
             return GetAdjustedColor(new Color32(hash[0], hash[1], hash[2], 255));
-
-            // TODO: Possibly use a different hash function so there are no collisions between the known objects, e.g. Pacus and Dreckos
         }
 
         // Adjust a color: Set alpha to fixed value, brigthen up dark colors, reduce palette to have reasonably different colors
@@ -98,8 +109,9 @@ namespace MapOverlay
         {
             MapOverlayEntry entry = null;
             Element element = Grid.Element[cell];
-            bool isRevealed = (!element.IsSolid || IsVisible(ModeGeysersInclBuried)); // TODO: buried mode only works for geysers this way
-            // TODO: Have a new reveal approach? No option, but always fully reveal partially revealed objects?
+            bool isRevealed = (!element.IsSolid || IsVisible(ModeGeysersInclBuried));
+            // Note: As long as there only is a buried mode for geysers, everything is will also be unrevealed this way
+
             GameObject building = isRevealed ? Grid.Objects[cell, (int) ObjectLayer.Building] : null;
             GameObject pickupable = isRevealed ? Grid.Objects[cell, (int) ObjectLayer.Pickupables] : null;
             ZoneType biome = World.Instance.zoneRenderData.worldZoneTypes[cell];
@@ -143,7 +155,6 @@ namespace MapOverlay
             }
             else if (IsVisible(ModePlants) && building != null && building.HasTag(GameTags.Plant) && !ColorMap.TryGetValue(building.name, out entry))
             {
-                // TODO: For some reason, waterweed shows in a 1x2, 2x2 or even 3x2 field
                 entry = new MapOverlayEntry { Name = building.GetProperName(), Color = GetRandomColor(building.name) };
                 ColorMap.Add(building.name, entry);
             }
@@ -151,8 +162,7 @@ namespace MapOverlay
             {
                 entry = new MapOverlayEntry { Name = Enum.GetName(typeof(ZoneType), biome), Color = GetBiomeColor(biome) };
                 ColorMap.Add(biome.ToString(), entry);
-                // TODO: Now those are the code names. Would be good to get the real names. The game knows them at least in the DLC.
-                // Use name strings from STRINGS.SUBWORLDS
+                // TODO: Now those are the code names. Would be good to get the real names. From the DLC on, the game knows them in STRINGS.SUBWORLDS.
             }
 
             return entry;
@@ -161,7 +171,7 @@ namespace MapOverlay
         // Build legend (this is done every time the overlay is opened or the mode is changed)
         public override List<LegendEntry> GetCustomLegendData()
         {
-            // Re-build ColorMap, so that only the discovered items are displayed
+            // Re-build ColorMap, so that only the relevant items are displayed (present and allready discovered on this planetoid)
             ColorMap.Clear();
 
             for (int cell = 0; cell < Grid.CellCount; cell++)
@@ -176,17 +186,12 @@ namespace MapOverlay
 
             foreach (KeyValuePair<string, MapOverlayEntry> entry in colorSortedList)
             {
-                // Use full alpha value in legend
-                Color color = entry.Value.Color;
-                color.a = 1f;
-
                 // If multiple entries with the same color exist, merge them in one legend entry
-                var existingLegendEntry = entries.Find(legend => legend.colour == color);
-                // TODO: Alternatively, take care that all entries shown have sufficiently distinct colors
+                var existingLegendEntry = entries.Find(legend => legend.colour == entry.Value.Color);
 
                 if (existingLegendEntry == null)
                 {
-                    entries.Add(new LegendEntry(entry.Value.Name, "", color));
+                    entries.Add(new LegendEntry(entry.Value.Name, "", entry.Value.Color));
                 }
                 else
                 {
@@ -208,7 +213,6 @@ namespace MapOverlay
             filters.Add(ModeCritters, ToolParameterMenu.ToggleState.Off);
             filters.Add(ModePlants, ToolParameterMenu.ToggleState.Off);
             filters.Add(ModeBiomes, ToolParameterMenu.ToggleState.Off);
-            // TODO: buried check for critters as well?
 
             return filters;
         }
@@ -236,6 +240,10 @@ namespace MapOverlay
             // TODO: I probably don't really want to use the Update() method for adding the checkbox
             // I want to do it the same way as it is done in DisinfectThresholdDiagram, but where the fuck is this used?
             // -> It must be the toolParameterMenuPrefab (with parent diagramsParent) for the OverlayLegend of the Disease Overlay, but I don't see where and with what this is set in OverlayScreen
+
+            //Vector3 position = parent.transform.GetPosition() + Vector3.down;
+            //Util.KInstantiateUI(legendGameObject, parent.transform.gameObject).GetComponent<RectTransform>().SetPosition(position);
+            // Still no effect
         }
 
         // Legend filter behaviour
