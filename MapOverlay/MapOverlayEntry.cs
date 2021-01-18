@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace MapOverlay
 {
@@ -7,5 +8,6 @@ namespace MapOverlay
     {
         public LocString Name { get; set; }
         public Color Color { get; set; }
+        public Dictionary<int, GameObject> GameObjects = new Dictionary<int, GameObject>();
     }
 }

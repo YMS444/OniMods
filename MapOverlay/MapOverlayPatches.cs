@@ -73,7 +73,7 @@ namespace MapOverlay
                         MapOverlay.Icon,
                         MapOverlay.ID,
                         "",
-                        MapOverlay.Hotkey,
+                        Action.NumActions, // TODO: Should be MapOverlay.Hotkey, but Overlay15 already is used by Traffic Visualiser and possibly will be taken by Radiation Overlay, too
                         MapOverlay.Desc,
                         MapOverlay.Name
                     }
@@ -87,9 +87,9 @@ namespace MapOverlay
         [HarmonyPatch(typeof(OverlayScreen), "RegisterModes")]
         public static class OverlayScreen_RegisterModes_Patch
         {
-            public static void Postfix()
+            public static void Postfix(OverlayScreen __instance)
             {
-                Traverse.Create(OverlayScreen.Instance).Method("RegisterMode", new MapOverlay()).GetValue();
+                 Traverse.Create(__instance).Method("RegisterMode", new MapOverlay()).GetValue();
             }
         }
 
@@ -135,11 +135,8 @@ namespace MapOverlay
         {
             public static void Postfix(Dictionary<HashedString, Func<SimDebugView, int, Color>> ___getColourFuncs)
             {
-                ___getColourFuncs.Add(MapOverlay.ID, (instance, cell) => MapOverlay.GetMapEntryAt(cell)?.Color ?? Color.clear);
+                ___getColourFuncs.Add(MapOverlay.ID, (instance, cell) => MapOverlay.GetBackgroundColor(cell));
             }
-
-            // TODO: At least for critters, it would be nice to color the actual critter, not the background cell here
-            // -> Tint buildings instead of coloring the whole tile (see  e.g. https://github.com/EtiamNullam/Etiam-ONI-Modpack/blob/master/src/MaterialColor/Painter.cs)
         }
     }
 }
