@@ -19,7 +19,7 @@ namespace MapOverlay
                 AddSpriteFromFile(MapOverlay.Icon);
 
                 // Add translations (some of them needed as ONI would otherwise display MISSING.STRINGS)
-                foreach (KeyValuePair<string, string> entry in MapOverlay.Modes)
+                foreach (KeyValuePair<string, string> entry in MapOverlay.Filters)
                 {
                     Strings.Add($"STRINGS.UI.TOOLS.FILTERLAYERS.{ entry.Key }", entry.Value);
                 }
