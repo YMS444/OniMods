@@ -1,0 +1,8 @@
+This mod simply removes the visual effect of the night. So if you don't see much sense in the whole world getting darker during night even though we are under ground anyway, this is for you.
+
+This mod does not change space biome's natural sunlight behaviour. So if you want to use your solar panels through the whole cycle, this mod is not what you are looking for.
+It also doesn't affect light-related buffs and debuffs, so it won't make your dupes work faster or sleep worse, or improve decor.
+And it does of course not affect the schedules, nor the music changing at night.
+It's just for the player not to have a darkened screen at night.
+
+Source code @ [url=https://github.com/YMS444/OniMods]GitHub[/url]

@@ -1,0 +1,29 @@
+A new overlay that serves as a map of the world, making the locations of Geysers, Critters and important Buildings obvious by highligthing them. Also shows spots of Neutronium to help detecting buried Geysers, and an optional mode even identifies the buried Geysers.
+
+The following objects are highlighted in the map overview:
+
+[list]
+[*] Geysers: All Geysers, Vents, Volcanos, Fissures, and Oil Reservoirs, plus and Neutronium, so you can spot buried Geysers.
+[*] Critters: All critters, including buried ones (e.g. sleeping hatches or critters that have been trapped in tiles.
+[*] Plants: All plants, wild or cultivated (no seeds).
+[*] Buildings: Printing Pod, Anti-Entropy Thermo-Nullifiers (AETNs) and Neural Vacillators from the base game; Mini-Pods and all kinds of Teleporters from the "Spaced Out" DLC
+[*] Biomes: All biomes
+[/list]
+
+Options:
+[list]
+[*] Show buried Geysers: 
+[/list]
+
+For geysers, critters and plants, all from the base game, any DLCs and properly done mods should be supported.
+
+The overlay's legend always only contains those objects that are present on your map (and that you already have discovered), so you'll get a quick overview of what you got on the map by just looking at the legend.
+
+The mod is best used in a zoom-out view. For this, use the game's screenshot mode (Alt + S) or Cairath's great [url=https://steamcommunity.com/sharedfiles/filedetails/?id=1717463209]Bigger Camera Zoom Out[/url] mod.
+
+Temporarily, the mod is only being updated for the Spaced Out DLC. If you are using the base game, some of the newer features (e.g. nicer coloring, biome names, settings) are not accessible to you. This will change in the future.
+
+Thanks to:
+Cairath for the guide, Peter Han for the Lib, asquared31415 for Info Overlay, and you for using this mod and your feedback!
+
+Source code @ [url=https://github.com/YMS444/OniMods]GitHub[/url]

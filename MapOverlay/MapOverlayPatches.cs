@@ -1,14 +1,24 @@
-﻿using Harmony;
+﻿using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using UnityEngine;
+using PeterHan.PLib.Options;
+using PeterHan.PLib.Core;
 
 namespace MapOverlay
 {
-    public static class MapOverlayPatches
-    {
+    public class MapOverlayPatches : KMod.UserMod2 {
+        // Mod entry point
+        public override void OnLoad(Harmony harmony)
+        {
+            PUtil.InitLibrary(true);
+            new POptions().RegisterOptions(this, typeof(MapOverlaySettings));
+
+            base.OnLoad(harmony);
+        }
+
         // Add assets needed for the mod to the game
         [HarmonyPatch(typeof(Db), "Initialize")]
         public static class Db_Initialize_Patch
@@ -73,7 +83,7 @@ namespace MapOverlay
                         MapOverlay.Icon,
                         MapOverlay.ID,
                         "",
-                        Action.NumActions, // TODO: Should be MapOverlay.Hotkey, but Overlay15 already is used by Traffic Visualiser and possibly will be taken by Radiation Overlay, too
+                        Action.NumActions, //POptions.ReadSettings<MapOverlaySettings>().Hotkey, // TODO: Not working if already used for anything else. Also, the Action enum destroys the layout of the options dialog.
                         MapOverlay.Desc,
                         MapOverlay.Name
                     }

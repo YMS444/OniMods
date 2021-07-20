@@ -6,10 +6,8 @@ using System.Security.Cryptography;
 using System.Text;
 using UnityEngine;
 using static ProcGen.SubWorld;
-using ProcGen;
-using System.Text.RegularExpressions;
-using Klei;
 using static STRINGS.SUBWORLDS;
+using PeterHan.PLib.Options;
 
 namespace MapOverlay
 {
@@ -21,20 +19,18 @@ namespace MapOverlay
         public static readonly HashedString ID = nameof(MapOverlay);
         public const string Icon = "overlay_map";
         public const string Name = "Map Overlay";
-        public const string Desc = "Displays a map view indicating positions of various POIs {Hotkey}";
+        public const string Desc = "Displays a map view indicating positions of various POIs"; //"Displays a map view indicating positions of various POIs {Hotkey}"
         public const string Sound = "Temperature";
         public const string LocName = "MAPOVERLAY.TITLE";
-        public const Action Hotkey = Action.Overlay15; // TODO: Check this with final DLC, which probably will use Overlay15 for the Radiation Overlay
 
         // Mode filters
         private const string FilterBiomes = "MapOverlayBiomes";
         private const string FilterBuildings = "MapOverlayBuildings";
         private const string FilterCritters = "MapOverlayCritters";
         private const string FilterGeysers = "MapOverlayGeysers";
-        private const string FilterGeysersInclBuried = "MapOverlayGeysersInclBuried";
         private const string FilterPlants = "MapOverlayPlants";
         private static string CurrentFilter = FilterGeysers;
-        public static readonly Dictionary<string, string> Filters = new Dictionary<string, string>() { { FilterBiomes, "Biomes" }, { FilterBuildings, "Buildings" }, { FilterCritters, "Critters" }, { FilterGeysers, "Geysers" }, { FilterGeysersInclBuried, "Geysers (incl. buried)" }, { FilterPlants, "Plants" } };
+        public static readonly Dictionary<string, string> Filters = new Dictionary<string, string>() { { FilterBiomes, "Biomes" }, { FilterBuildings, "Buildings" }, { FilterCritters, "Critters" }, { FilterGeysers, "Geysers" }, { FilterPlants, "Plants" } };
 
         // Maps of things to map on the map
         private static readonly Dictionary<string, MapOverlayEntry> ColorMap = new Dictionary<string, MapOverlayEntry>();
@@ -49,12 +45,15 @@ namespace MapOverlay
         private static readonly int CameraLayerMask = LayerMask.GetMask("MaskedOverlay", "MaskedOverlayBG");
         private readonly List<KMonoBehaviour> LayerTargets = new List<KMonoBehaviour>();
         private readonly OverlayModes.ColorHighlightCondition[] HighlightConditions;
+        private static MapOverlaySettings Settings;
 
 
         // Constructor
         public MapOverlay()
         {
             legendFilters = CreateDefaultFilters();
+
+            Settings = POptions.ReadSettings<MapOverlaySettings>();
 
             // Setting up ONI's own background-coloring logic
             HighlightConditions = new OverlayModes.ColorHighlightCondition[] {
@@ -84,13 +83,14 @@ namespace MapOverlay
             {
                 UpdateMapEntry(building);
             }
-            else if (IsCurrentFilter(FilterCritters) && pickupable != null && pickupable.HasTag(GameTags.Creature))
+            else if (IsCurrentFilter(FilterCritters) && pickupable != null && IsCritterRevealed(cell) && pickupable.HasTag(GameTags.Creature))
             {
                 UpdateMapEntry(pickupable);
             }
             else if (IsCurrentFilter(FilterPlants) && building != null && building.HasTag(GameTags.Plant))
             {
                 UpdateMapEntry(building);
+                // TODO: Are sporechids no plants???
             }
             else if (IsCurrentFilter(FilterBiomes))
             {
@@ -99,10 +99,16 @@ namespace MapOverlay
             }
         }
 
-        // Do not display highlight buried geysers unless explicitly requested (for all others, e.g. buried critters, don't apply this method)
+        // Do not display highlight buried geysers unless explicitly requested (reason: can be considered cheaty, though there are in-game ways to find out)
         private static bool IsGeyserRevealed(int cell)
         {
-            return (IsCurrentFilter(FilterGeysersInclBuried) || !Grid.Element[cell].IsSolid);
+            return (Settings.ShowBuriedGeysers || !Grid.Element[cell].IsSolid);
+        }
+
+        // Do not display highlight buried critters unless explicitly requested (reason: can be considered cheaty for shove voles, though there are in-game ways to find out)
+        private static bool IsCritterRevealed(int cell)
+        {
+            return (Settings.ShowBuriedCritters || !Grid.Element[cell].IsSolid);
         }
 
         // Creates or extends a ColorMap entry, if necessary
@@ -141,6 +147,12 @@ namespace MapOverlay
             {
                 // Biomes: Get the original color for the biome
                 color = World.Instance.GetComponent<SubworldZoneRenderData>().zoneColours[(int) obj];
+
+                // Reset the alpha value so it can be shown nicely both in the map and the legend
+                color.a = 1f;
+
+                // No further adaption for already hand-picked colors, as this would merge e.g. Magma and Wasteland
+                return color;
             }
             else if (obj is string name)
             {
@@ -148,15 +160,6 @@ namespace MapOverlay
                 // Using SHA256 is basically a random choice, but giving nicer colors for base game critters/plants than MD5 and SHA1
                 byte[] hash = SHA256HashGenerator.ComputeHash(Encoding.UTF8.GetBytes(name));
                 color = new Color32(hash[0], hash[1], hash[2], 255);
-            }
-
-            // Reset the alpha value so it can be shown nicely
-            color.a = 1f;
-
-            if (obj is ZoneType)
-            {
-                // No further adaption for already hand-picked biome colors, as this would merge e.g. Magma and Wasteland
-                return color;
             }
 
             // Reduce palette (by rounding to .25) to make two very similar colors either reasonably different or completely the same so the legend entries will be merged
@@ -248,15 +251,29 @@ namespace MapOverlay
 
                 if (existingLegendEntry == null)
                 {
-                    entries.Add(new LegendEntry(entry.Value.Name, "", entry.Value.Color));
+                    entries.Add(new LegendEntry(GetLegendName(entry.Value), "", entry.Value.Color));
                 }
                 else
                 {
-                    existingLegendEntry.name = ((LocString) existingLegendEntry.name) + "\n" + entry.Value.Name;
+                    existingLegendEntry.name = ((LocString) existingLegendEntry.name) + "\n" + GetLegendName(entry.Value);
                 }
             }
 
             return entries;
+        }
+
+        // Get the name for an entry in the overlay legend
+        // If setting to add count is used, add count for countable objects (not e.g. biomes)
+        private string GetLegendName(MapOverlayEntry entry)
+        {
+            if (Settings.CountObjects && entry.GameObjects.Count > 0)
+            {
+                return $"{entry.Name.text} ({entry.GameObjects.Count})";
+            }
+            else
+            {
+                return entry.Name;
+            }
         }
 
         // Enable overlay - init mask
@@ -332,10 +349,9 @@ namespace MapOverlay
         }
 
         // Check if we currently are in that filter mode
-        // Accepts "Geysers (incl. buried)" as "Geysers", but not vice versa
         private static bool IsCurrentFilter(string modeToCheck)
         {
-            return CurrentFilter.Equals(modeToCheck) || (FilterGeysersInclBuried.Equals(CurrentFilter) && FilterGeysers.Equals(modeToCheck));
+            return CurrentFilter.Equals(modeToCheck);
         }
 
         // ID, as used internally by ONI to distinguish the overlays
@@ -354,6 +370,12 @@ namespace MapOverlay
 
 // TODO: Future improvement ideas
 // - Print object name in the map
-// - Make colors configurable, possibly also which objects to map and if buried option is available
+// - Make colors configurable, possibly also which objects to map
 // - Optionally reveal even objects hidden behind POW?
 // - Minimap version of the mod, so the map can be shown while playing
+
+// Possible options:
+// - Merge similar colors
+// - Include secondary POIs (e.g. lockers) in buildings
+// - Use UI colors for elements
+// - Include eggs in the critters filter

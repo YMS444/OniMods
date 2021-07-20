@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\ILMerge.3.0.41\build\ILMerge.props" Condition="Exists('..\packages\ILMerge.3.0.41\build\ILMerge.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -9,10 +10,12 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MapOverlay</RootNamespace>
     <AssemblyName>MapOverlay</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
     <TargetFrameworkProfile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -22,6 +25,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -30,11 +34,13 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="MapOverlayEntry.cs" />
     <Compile Include="MapOverlay.cs" />
     <Compile Include="MapOverlayPatches.cs" />
+    <Compile Include="MapOverlaySettings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -48,37 +54,65 @@
     <Content Include="preview\preview_overview.png" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="0Harmony, Version=1.2.0.1, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="0Harmony, Version=2.0.5.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\Desktop\Steam dev\CopyOfManaged447598dlcbeta\0Harmony.dll</HintPath>
+      <HintPath>..\..\..\..\Desktop\Steam dev\CopyOfManagedAfterMerge\0Harmony.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\Desktop\Steam dev\CopyOfManaged447598dlcbeta\Assembly-CSharp.dll</HintPath>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>..\..\..\..\Desktop\Steam dev\CopyOfManagedAfterMerge\Assembly-CSharp.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Assembly-CSharp-firstpass, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\Desktop\Steam dev\CopyOfManaged447598dlcbeta\Assembly-CSharp-firstpass.dll</HintPath>
+      <HintPath>..\..\..\..\Desktop\Steam dev\CopyOfManagedAfterMerge\Assembly-CSharp-firstpass.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.13.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="PLib, Version=4.4.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\PLib.4.4.0\lib\net471\PLib.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\Desktop\Steam dev\CopyOfManaged447598dlcbeta\UnityEngine.dll</HintPath>
+      <HintPath>..\..\..\..\Desktop\Steam dev\CopyOfManagedAfterMerge\UnityEngine.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\Desktop\Steam dev\CopyOfManaged447598dlcbeta\UnityEngine.CoreModule.dll</HintPath>
+      <HintPath>..\..\..\..\Desktop\Steam dev\CopyOfManagedAfterMerge\UnityEngine.CoreModule.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="UnityEngine.ImageConversionModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\Desktop\Steam dev\CopyOfManaged447598dlcbeta\UnityEngine.ImageConversionModule.dll</HintPath>
+      <HintPath>..\..\..\..\Desktop\Steam dev\CopyOfManagedAfterMerge\UnityEngine.ImageConversionModule.dll</HintPath>
+      <Private>True</Private>
     </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>mkdir "%25HOMEPATH%25\Documents\Klei\OxygenNotIncluded\mods\dev\$(ProjectName)"
-copy "$(TargetPath)" "%25HOMEPATH%25\Documents\Klei\OxygenNotIncluded\mods\dev\$(ProjectName)"
+    <PostBuildEvent>:: Merge for PLib usage:
+"$(ILMergeConsolePath)" /ndebug /out:$(TargetName)Mod.dll $(TargetName).dll PLib.dll /targetplatform:v4,C:\Windows\Microsoft.NET\Framework64\v4.0.30319
+mkdir "%25HOMEPATH%25\Documents\Klei\OxygenNotIncluded\mods\dev\$(ProjectName)"
+
+:: Copy merged version instead of original DLL for PLib usage:
+::copy "$(TargetPath)" "%25HOMEPATH%25\Documents\Klei\OxygenNotIncluded\mods\dev\$(ProjectName)"
+copy "$(TargetName)Mod.dll" "%25HOMEPATH%25\Documents\Klei\OxygenNotIncluded\mods\dev\$(ProjectName)"
+
 IF EXIST  "$(TargetDir)*.json" ( copy "$(TargetDir)*.json" "%25HOMEPATH%25\Documents\Klei\OxygenNotIncluded\mods\dev\$(ProjectName)" )
 IF EXIST  "$(TargetDir)*.txt" ( copy "$(TargetDir)*.txt" "%25HOMEPATH%25\Documents\Klei\OxygenNotIncluded\mods\dev\$(ProjectName)" )</PostBuildEvent>
   </PropertyGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>Dieses Projekt verweist auf mindestens ein NuGet-Paket, das auf diesem Computer fehlt. Verwenden Sie die Wiederherstellung von NuGet-Paketen, um die fehlenden Dateien herunterzuladen. Weitere Informationen finden Sie unter "http://go.microsoft.com/fwlink/?LinkID=322105". Die fehlende Datei ist "{0}".</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\ILMerge.3.0.41\build\ILMerge.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\ILMerge.3.0.41\build\ILMerge.props'))" />
+  </Target>
 </Project>
